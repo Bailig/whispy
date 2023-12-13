@@ -14,11 +14,12 @@ const pubsub = new PubSub();
 
 const typeDefs = `
   type Query {
-    hello: String
+    hello: String!
+    myId: ID!
   }
 
   type Mutation {
-    sendMessage(content: String!): Message
+    sendMessage(ownerId: ID!, content: String!): Message!
   }
 
   type Subscription {
@@ -27,42 +28,38 @@ const typeDefs = `
 
   type Message {
     id: ID!
+    ownerId: ID!
     content: String!
   }
 `;
 
-class User {
-  static id = 0;
-  id: number;
-
-  constructor() {
-    this.id = User.id++;
-  }
-}
-
 class Message {
   static id = 0;
   id: number;
+  ownerId: number;
   content: string;
-  owner: User;
 
-  constructor(owner: User, content: string) {
-    this.id = Message.id++;
+  constructor(ownerId: number, content: string) {
+    Message.id++;
+    this.id = Message.id;
     this.content = content;
-    this.owner = owner;
+    this.ownerId = ownerId;
   }
 }
 
-let messageId = 0;
+let userId = 0;
 
 const resolvers = {
   Query: {
     hello: () => "world",
+    myId: () => {
+      userId++;
+      return userId;
+    },
   },
   Mutation: {
-    sendMessage: (_, { content }) => {
-      messageId++;
-      const message = { id: messageId.toString(), content };
+    sendMessage: (_: any, { ownerId, content }: any) => {
+      const message = new Message(ownerId, content);
       pubsub.publish("MESSAGE_RECEIVED", { messageReceived: message });
       return message;
     },
@@ -70,7 +67,6 @@ const resolvers = {
   Subscription: {
     messageReceived: {
       subscribe: () => {
-        const user = new User();
         return pubsub.asyncIterator("MESSAGE_RECEIVED");
       },
     },

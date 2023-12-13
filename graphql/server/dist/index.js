@@ -12,11 +12,12 @@ import bodyParser from "body-parser";
 const pubsub = new PubSub();
 const typeDefs = `
   type Query {
-    hello: String
+    hello: String!
+    myId: ID!
   }
 
   type Mutation {
-    sendMessage(content: String!): Message
+    sendMessage(ownerId: ID!, content: String!): Message!
   }
 
   type Subscription {
@@ -25,25 +26,40 @@ const typeDefs = `
 
   type Message {
     id: ID!
+    ownerId: ID!
     content: String!
   }
 `;
-let messageId = 0;
+class Message {
+    constructor(ownerId, content) {
+        Message.id++;
+        this.id = Message.id;
+        this.content = content;
+        this.ownerId = ownerId;
+    }
+}
+Message.id = 0;
+let userId = 0;
 const resolvers = {
     Query: {
         hello: () => "world",
+        myId: () => {
+            userId++;
+            return userId;
+        },
     },
     Mutation: {
-        sendMessage: (_, { content }) => {
-            messageId++;
-            const message = { id: messageId.toString(), content };
+        sendMessage: (_, { ownerId, content }) => {
+            const message = new Message(Number.parseInt(ownerId), content);
             pubsub.publish("MESSAGE_RECEIVED", { messageReceived: message });
             return message;
         },
     },
     Subscription: {
         messageReceived: {
-            subscribe: () => pubsub.asyncIterator("MESSAGE_RECEIVED"),
+            subscribe: () => {
+                return pubsub.asyncIterator("MESSAGE_RECEIVED");
+            },
         },
     },
 };

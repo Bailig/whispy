@@ -1,5 +1,5 @@
 {
-  "name": "@webiny/api-graphql",
+  "name": "@whispy/graphql-server",
   "type": "module",
   "scripts": {
     "build": "tsc",

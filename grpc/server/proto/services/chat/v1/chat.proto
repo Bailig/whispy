@@ -1,0 +1,27 @@
+
+syntax = "proto3";
+
+package services.chat.v1;
+
+service ChatService {
+  rpc GetMyId (Void) returns (GetMyIdResponse) {}
+  rpc SendMessage (SendMessageRequest) returns (Void) {}
+  rpc ReceiveMessage (Void) returns (stream Message) {}
+}
+
+message Void {}
+
+message GetMyIdResponse {
+  string id = 1;
+}
+
+message SendMessageRequest {
+  string ownerId = 1;
+  string content = 2;
+}
+
+message Message {
+  string id = 1;
+  string ownerId = 2;
+  string content = 3;
+}

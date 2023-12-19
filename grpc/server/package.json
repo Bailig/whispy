@@ -2,7 +2,8 @@
   "name": "@whispy/grpc-server",
   "type": "module",
   "scripts": {
-    "dev": "node src/index.js"
+    "dev": "node src/index.js",
+    "test": "node src/test-client.js"
   },
   "dependencies": {
     "@grpc/grpc-js": "^1.9.13",

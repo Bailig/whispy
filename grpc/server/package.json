@@ -3,7 +3,8 @@
   "type": "module",
   "scripts": {
     "dev": "node src/index.js",
-    "test": "node src/test-client.js"
+    "test": "node src/test-client.js",
+    "grpcui": "grpcui -proto src/chat.proto -plaintext localhost:40000"
   },
   "dependencies": {
     "@grpc/grpc-js": "^1.9.13",
